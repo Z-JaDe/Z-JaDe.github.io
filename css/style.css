@@ -772,8 +772,8 @@ a {
   -ms-transform: scale(1.1);
   transform: scale(1.1);
 }
-#header .header-nav .social .新浪微博 {
-  background: url("/img/新浪微博.png") center no-repeat #ecc260;
+#header .header-nav .social .微博 {
+  background: url("/img/微博.png") center no-repeat #ecc260;
   -webkit-background-size: 80%;
   -moz-background-size: 80%;
   background-size: 80%;

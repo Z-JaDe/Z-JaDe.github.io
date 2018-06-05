@@ -15,18 +15,18 @@
 
 
 
-<meta name="description" content=".article-header {         padding: 0;         padding-top: 26px;         border-left: none;         text-align: center;     }     .article-header:hover {         border-left: none;     }     .art">
-<meta name="keywords" content="ios">
-<meta property="og:type" content="website">
-<meta property="og:title" content="404 Not Found：该页无法显示">
-<meta property="og:url" content="http://Z-JaDe.github.io/404.html">
+<meta name="description" content="关于RxSwift中生产者消费者模式运用的代码理解">
+<meta name="keywords" content="RxSwift,Swift,设计模式,源代码理解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RxSwift源代码理解 - Producer">
+<meta property="og:url" content="http://Z-JaDe.github.io/2018/05/27/RxSwift源代码理解-Producer/index.html">
 <meta property="og:site_name" content="ZJaDe&#39;维度">
-<meta property="og:description" content=".article-header {         padding: 0;         padding-top: 26px;         border-left: none;         text-align: center;     }     .article-header:hover {         border-left: none;     }     .art">
+<meta property="og:description" content="关于RxSwift中生产者消费者模式运用的代码理解">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-06-05T07:01:13.865Z">
+<meta property="og:updated_time" content="2018-06-05T10:39:59.614Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="404 Not Found：该页无法显示">
-<meta name="twitter:description" content=".article-header {         padding: 0;         padding-top: 26px;         border-left: none;         text-align: center;     }     .article-header:hover {         border-left: none;     }     .art">
+<meta name="twitter:title" content="RxSwift源代码理解 - Producer">
+<meta name="twitter:description" content="关于RxSwift中生产者消费者模式运用的代码理解">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -58,7 +58,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>404 Not Found：该页无法显示 | ZJaDe&#39;维度</title>
+<title>RxSwift源代码理解 - Producer | ZJaDe&#39;维度</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -68,7 +68,7 @@
         fancybox: true,
         animate: true,
         isHome: false,
-        isPost: false,
+        isPost: true,
         isArchive: false,
         isTag: false,
         isCategory: false,
@@ -268,11 +268,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="page-" class="article article-type-page" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-RxSwift源代码理解-Producer" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/404.html" class="article-date">
-      <time datetime="2018-06-05T07:01:13.865Z" itemprop="datePublished">2018-06-05</time>
+      <a href="/2018/05/27/RxSwift源代码理解-Producer/" class="article-date">
+      <time datetime="2018-05-27T12:45:00.000Z" itemprop="datePublished">2018-05-27</time>
 </a>
 
 
@@ -287,7 +287,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      404 Not Found：该页无法显示
+      RxSwift源代码理解 - Producer
     </h1>
   
 
@@ -295,8 +295,16 @@
       
       <div class="article-info article-info-post">
         
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/RxSwift/">RxSwift</a>
+    </div>
+
 
         
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RxSwift/">RxSwift</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Swift/">Swift</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源代码理解/">源代码理解</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/设计模式/">设计模式</a></li></ul>
+    </div>
+
         <div class="clearfix"></div>
       </div>
       
@@ -304,92 +312,92 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <style>
-    .article-meta { display: none; }
-    #container .article .article-title { padding-right: 0; }
-    .article-header {
-        padding: 0;
-        padding-top: 26px;
-        border-left: none;
-        text-align: center;
-    }
-    .article-header:hover { border-left: none; }
-    .article-title { font-size: 1.6em }
-    .article-entry hr { margin: 0;}
-    .article-meta,
-    #container .article-info-post.article-info { display: none;}
-    #container .article .article-title { padding: 0; }
-</style>
+        <h3 id="协议介绍"><a href="#协议介绍" class="headerlink" title="协议介绍"></a>协议介绍</h3><p>ObserverType -&gt; 观察者</p>
+<p>ObservableType -&gt; 被观察者，有一个方法subscribe(订阅)，会传一个观察者参数。被一个观察者订阅后，会在合适的时机调用观察者的on方法，来完成信号的传递。subscribe会返回一个Disposable 来实现资源释放管理</p>
+<p>Disposable -&gt; 实现这个协议的类 可被加入资源释放管理</p>
+<h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p>生产者，主要作用信号发射或者处理，也是一个被观察者。</p>
+<ul>
+<li><p>一些简单的生产者在被subscribe时只会发出一些信号，不做其他处理 比如 Just、Empty。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">subscribe</span>&lt;O : ObserverType&gt;<span class="params">(<span class="number">_</span> observer: O)</span></span> -&gt; <span class="type">Disposable</span> <span class="keyword">where</span> <span class="type">O</span>.<span class="type">E</span> == <span class="type">Element</span> &#123;</span><br><span class="line">    observer.on(.next(_element))</span><br><span class="line">    observer.on(.completed)</span><br><span class="line">    <span class="keyword">return</span> <span class="type">Disposables</span>.create()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>一般的生产者 subscribe方法里面一般会有：一个或者多个被观察者属性_source(比如上一个生产者、Subject)。一个run方法，run返回一个封装好的观察者(sink)和一个Disposable(subscription)，这两个返回值将会被SinkDisposer持有管理，SinkDisposer释放时会同时释放sink和subscription。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> disposer = <span class="type">SinkDisposer</span>()</span><br><span class="line"><span class="keyword">let</span> sinkAndSubscription = run(observer, cancel: disposer)</span><br><span class="line">disposer.setSinkAndSubscription(sink: sinkAndSubscription.sink, subscription: sinkAndSubscription.subscription)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>sink本身是一个观察者，对observer的一层包装，它内部会持有一个observer，进行一些信号的处理转换。有时候会调用cancel(SinkDisposer)属性主动dispose，(Sink和SinkDisposer是循环引用的)</p>
+<ol>
+<li><p>一些subscription是通过调用_source的subscribe方法返回，subscribe方法所传的观察者参数就是sink.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">run</span>&lt;O: ObserverType&gt;<span class="params">(<span class="number">_</span> observer: O, cancel: Cancelable)</span></span> -&gt; (sink: <span class="type">Disposable</span>, subscription: <span class="type">Disposable</span>) <span class="keyword">where</span> <span class="type">O</span>.<span class="type">E</span> == <span class="type">ResultType</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> sink = <span class="type">MapSink</span>(transform: _transform, observer: observer, cancel: cancel)</span><br><span class="line">    <span class="keyword">let</span> subscription = _source.subscribe(sink)</span><br><span class="line">    <span class="keyword">return</span> (sink: sink, subscription: subscription)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>sink有时候也会持有生产者，内部在适当的时候调用生产者的一些属性。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">run</span>&lt;O: ObserverType&gt;<span class="params">(<span class="number">_</span> observer: O, cancel: Cancelable)</span></span> -&gt; (sink: <span class="type">Disposable</span>, subscription: <span class="type">Disposable</span>) <span class="keyword">where</span> <span class="type">O</span>.<span class="type">E</span> == <span class="type">Element</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> sink = <span class="type">DistinctUntilChangedSink</span>(parent: <span class="keyword">self</span>, observer: observer, cancel: cancel)</span><br><span class="line">    <span class="keyword">let</span> subscription = _source.subscribe(sink)</span><br><span class="line">    <span class="keyword">return</span> (sink: sink, subscription: subscription)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>也有一些subscription需要在sink的run方法进行一些加工返回。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">run</span>&lt;O: ObserverType&gt;<span class="params">(<span class="number">_</span> observer: O, cancel: Cancelable)</span></span> -&gt; (sink: <span class="type">Disposable</span>, subscription: <span class="type">Disposable</span>) <span class="keyword">where</span> <span class="type">O</span>.<span class="type">E</span> == <span class="type">Element</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> sink = <span class="type">DebounceSink</span>(parent: <span class="keyword">self</span>, observer: observer, cancel: cancel)</span><br><span class="line">    <span class="keyword">let</span> subscription = sink.run()</span><br><span class="line">    <span class="keyword">return</span> (sink: sink, subscription: subscription)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>整体来说这样的的生产者本身是对_source的一层包装，在subscribe的时候，所做的事情就是，把观察者包装成一个新的观察者sink，然后调用_source的subscribe方法。</p>
+<p>一个生产者的内部资源一方面由自己循环引用适当的时机释放，另一方面也会由DisposeBase管理。</p>
 
-
-          
-        <style type="text/css">
-    .article-header {
-        padding: 0;
-        padding-top: 26px;
-        border-left: none;
-        text-align: center;
-    }
-    .article-header:hover {
-        border-left: none;
-    }
-    .article-title {
-        font-size: 2.1em;
-    }
-    strong a {
-        color: #747474;
-    }
-    .article-meta {
-        display: none;
-    }
-    .share {
-        display: none;
-    }
-    .ds-meta {
-        display: none;
-    }
-    .player {
-        margin-left: -10px;
-    }
-    .sign {
-        text-align: right;
-        font-style: italic;
-    }
-      #page-visit {
-        display: none;
-    }
-    .center {
-        text-align: center;
-        height: 2.5em;
-        font-weight: bold;
-    }
-    .article-entry hr {
-        margin: 0;
-    }
-    .pic {
-        text-align: center;
-        margin: 0;
-    }
-    .pic br {
-          display: none;
-      }
-    #container .article-info-post.article-info {
-      display: none;
-      }
-    #container .article .article-title {
-    padding: 0;
-    }
-</style>
       
     </div>
     
   </div>
   
     
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2018/05/27/RxSwift源代码理解-Producer/">RxSwift源代码理解 - Producer</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">ZJaDe</a></p>
+        <p><span>发布时间:</span>2018-05-27, 20:45:00</p>
+        <p><span>最后更新:</span>2018-06-05, 18:39:59</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2018/05/27/RxSwift源代码理解-Producer/" title="RxSwift源代码理解 - Producer">http://Z-JaDe.github.io/2018/05/27/RxSwift源代码理解-Producer/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://Z-JaDe.github.io/2018/05/27/RxSwift源代码理解-Producer/　　作者: ZJaDe" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
 
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/06/05/hello-world/">
+                    Hello World
+                </a>
+            </div>
+        
+        
+    </nav>
 
   
 </article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#协议介绍"><span class="toc-number">1.</span> <span class="toc-text">协议介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Producer"><span class="toc-number">2.</span> <span class="toc-text">Producer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
 
 
 
@@ -407,7 +415,7 @@
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"404 Not Found：该页无法显示　| ZJaDe'维度　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"RxSwift源代码理解 - Producer　| ZJaDe'维度　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -420,6 +428,26 @@
 
 
 
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/06/05/hello-world/" title="上一篇: Hello World">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/06/05/hello-world/">Hello World</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/27/RxSwift源代码理解-Producer/">RxSwift源代码理解 - Producer</a></li></ul>
 
 
 
